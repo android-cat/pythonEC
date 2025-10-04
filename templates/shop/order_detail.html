@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}注文詳細 #{{ order.id }} - ECサイト{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">ホーム</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'shop:order_history' %}">注文履歴</a></li>
+        <li class="breadcrumb-item active">注文 #{{ order.id }}</li>
+    </ol>
+</nav>
+
+<h1 class="mb-4">注文詳細 #{{ order.id }}</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>注文情報</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>注文日時:</strong> {{ order.created_at|date:"Y年m月d日 H:i" }}</p>
+                <p><strong>ステータス:</strong> 
+                    {% if order.status == 'pending' %}
+                        <span class="badge bg-warning">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'processing' %}
+                        <span class="badge bg-info">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'shipped' %}
+                        <span class="badge bg-primary">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'delivered' %}
+                        <span class="badge bg-success">{{ order.get_status_display }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ order.get_status_display }}</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>配送先</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ order.shipping_name }}<br>
+                〒{{ order.shipping_postal_code }}<br>
+                {{ order.shipping_address }}<br>
+                TEL: {{ order.shipping_phone }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5>注文商品</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>商品名</th>
+                            <th>単価</th>
+                            <th>数量</th>
+                            <th>小計</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'shop:product_detail' item.product.slug %}">
+                                        {{ item.product.name }}
+                                    </a>
+                                </td>
+                                <td>¥{{ item.price|floatformat:0 }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td><strong>¥{{ item.subtotal|floatformat:0 }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>合計:</strong></td>
+                            <td><strong class="text-primary fs-5">¥{{ order.total_amount|floatformat:0 }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">アクション</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'shop:order_history' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 注文履歴に戻る
+                    </a>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                        買い物を続ける
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

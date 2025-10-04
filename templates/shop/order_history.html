@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}注文履歴 - ECサイト{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">注文履歴</h1>
+
+{% if orders %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>注文番号</th>
+                    <th>注文日時</th>
+                    <th>ステータス</th>
+                    <th>合計金額</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.created_at|date:"Y年m月d日 H:i" }}</td>
+                        <td>
+                            {% if order.status == 'pending' %}
+                                <span class="badge bg-warning">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'processing' %}
+                                <span class="badge bg-info">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'shipped' %}
+                                <span class="badge bg-primary">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'delivered' %}
+                                <span class="badge bg-success">{{ order.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ order.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>¥{{ order.total_amount|floatformat:0 }}</strong></td>
+                        <td>
+                            <a href="{% url 'shop:order_detail' order.id %}" class="btn btn-sm btn-primary">
+                                詳細
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <h4>注文履歴がありません</h4>
+        <p>まだ注文がありません。</p>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary">商品を見る</a>
+    </div>
+{% endif %}
+{% endblock %}
